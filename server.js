@@ -18,10 +18,19 @@ const root = {
 
 // Spin up a server to receive graphql queries
 const app = express();
-app.use('/graphql', graphqlHTTP({
+
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
+
+app.post('/graphql', graphqlHTTP({
     schema: schema,
     rootValue: root,
     graphiql: true
 }));
+
 app.listen(4000);
+
 console.log('Running a GraphQL API server at localhost:4000/graphql');

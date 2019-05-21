@@ -1,7 +1,6 @@
 function do_request() {
     fetch('http://localhost:4000/graphql', {
         method: 'POST',
-        mode: 'no-cors',
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
