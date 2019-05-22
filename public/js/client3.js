@@ -1,3 +1,5 @@
+// Passing parameters, using variables
+
 function do_request() {
     const dice = 3;
     const sides = 6;
