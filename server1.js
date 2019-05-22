@@ -1,5 +1,7 @@
 const { graphql, buildSchema } = require('graphql');
 
+// Standalone program
+
 // Construct a schema, using GraphQL schema language
 const schema = buildSchema(`
     type Query {

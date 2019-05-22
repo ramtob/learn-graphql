@@ -1,46 +1,53 @@
-const express = require('express');
-const graphqlHTTP = require('express-graphql');
-const {buildSchema} = require('graphql');
+var express = require('express');
+var graphqlHTTP = require('express-graphql');
+var { buildSchema } = require('graphql');
+
+// Object Types
 
 // Construct a schema, using GraphQL schema language
-const schema = buildSchema(`
+var schema = buildSchema(`
+  type RandomDie {
+    numSides: Int!
+    rollOnce: Int!
+    roll(numRolls: Int!): [Int]
+  }
+
   type Query {
-    rollDice(numDice: Int!, numSides: Int): [Int]
+    getDie(numSides: Int): RandomDie
   }
 `);
 
-// The root provides a resolver function for each API endpoint
-const root = {
-    rollDice: function ({numDice, numSides = 6}) {
-        let output = [];
-        for (let i = 0; i < numDice; i++) {
-            output.push(1 + Math.floor(Math.random() * numSides));
+// This class implements the RandomDie GraphQL type
+class RandomDie {
+    constructor(numSides) {
+        this.numSides = numSides;
+    }
+
+    rollOnce() {
+        return 1 + Math.floor(Math.random() * this.numSides);
+    }
+
+    roll({numRolls}) {
+        var output = [];
+        for (var i = 0; i < numRolls; i++) {
+            output.push(this.rollOnce());
         }
         return output;
     }
+}
+
+// The root provides the top-level API endpoints
+var root = {
+    getDie: function ({numSides}) {
+        return new RandomDie(numSides || 6);
+    }
 };
 
-// Spin up a server to receive graphql queries
-const app = express();
-
-app.use(function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-});
-
-app.get('/graphql', graphqlHTTP({
+var app = express();
+app.use('/graphql', graphqlHTTP({
     schema: schema,
     rootValue: root,
-    graphiql: true
+    graphiql: true,
 }));
-
-app.post('/graphql', graphqlHTTP({
-    schema: schema,
-    rootValue: root,
-    graphiql: true
-}));
-
 app.listen(4000);
-
 console.log('Running a GraphQL API server at localhost:4000/graphql');
